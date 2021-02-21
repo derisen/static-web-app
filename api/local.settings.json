@@ -3,6 +3,9 @@
   "Values": {
     "AzureWebJobsStorage": "",
     "FUNCTIONS_WORKER_RUNTIME": "node",
-    "WEBSITE_NODE_DEFAULT_VERSION": "~12"
+    "WEBSITE_NODE_DEFAULT_VERSION": "~12",
+    "CLIENT_ID": "83786cb0-06a7-46fd-bf29-95c828c9bbba",
+    "TENANT_INFO": "cbaf2168-de14-4c72-9d88-f5f05366dbef",
+    "EXPECTED_SCOPES": "access_as_user"
   }
 }

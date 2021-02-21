@@ -1,40 +1,54 @@
 const jwt = require('jsonwebtoken')
 const jwksClient = require('jwks-rsa');
 
-const CLIENT_ID = "83786cb0-06a7-46fd-bf29-95c828c9bbba";
-const TENANT_INFO = "cbaf2168-de14-4c72-9d88-f5f05366dbef";
-const EXPECTED_SCOPES = "access_as_user";
-
 module.exports = async function (context, req) {
     context.log('JavaScript HTTP trigger function processed a request.');
+    
+    context.log(process.env['CLIENT_ID']);
 
-    const [bearer, tokenValue] = req.headers['authorization'] !== undefined ? req.headers['authorization'].split(' ') : null;
-
-    const name = (req.query.name || (req.body && req.body.name));
     const ssoToken = (req.query.ssoToken || (req.body && req.body.ssoToken));
 
-    let validated;
-
     try {
-        validated = await validateAccessToken(ssoToken)
-        context.log(validated);   
+        const isAuthorized = await validateAccessToken(ssoToken);
+
+        if (isAuthorized) {
+            const userName = jwt.decode(ssoToken, {complete: true}).payload['name'];
+
+            context.res = {
+                status: 200,
+                body: {
+                    message: "Authorized",
+                    userName: userName,
+                },
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+        } else {
+            context.res = {
+                status: 401,
+                body: {
+                    message: "Invalid token"
+                },
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+        }
+
     } catch (error) {
         context.log(error);
+
+        context.res = {
+            status: 500,
+            body: {
+                message: JSON.stringify(error),
+            },
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
     }
-
-    const responseMessage = `
-        name: ${name} ---
-        ssoToken: ${ssoToken} ---
-        isValidated: ${validated} ---
-        tokenValue: ${tokenValue} ---
-        clientID: ${CLIENT_ID} ---
-        Nodejs: ${process.version} ---
-    `;
-
-    context.res = {
-        // status: 200, /* Defaults to 200 */
-        body: responseMessage
-    };
 }
 
 
@@ -91,9 +105,9 @@ validateAccessToken = async(accessToken) => {
     const now = Math.round((new Date()).getTime() / 1000); // in UNIX format
 
     const checkTimestamp = verifiedToken["iat"] <= now && verifiedToken["exp"] >= now ? true : false;
-    const checkAudience = verifiedToken['aud'] === CLIENT_ID || verifiedToken['aud'] === 'api://' + CLIENT_ID ? true : false;
-    const checkScope = verifiedToken['scp'] === EXPECTED_SCOPES ? true : false;
-    const checkIssuer = verifiedToken['iss'].includes(TENANT_INFO) ? true : false;
+    const checkAudience = verifiedToken['aud'] === process.env['CLIENT_ID'] || verifiedToken['aud'] === 'api://' + process.env['CLIENT_ID'] ? true : false;
+    const checkScope = verifiedToken['scp'] === process.env['EXPECTED_SCOPES'] ? true : false;
+    const checkIssuer = verifiedToken['iss'].includes(process.env['TENANT_INFO']) ? true : false;
 
     if (checkTimestamp && checkAudience && checkScope && checkIssuer) {
         return true;
@@ -108,7 +122,8 @@ validateAccessToken = async(accessToken) => {
 getSigningKeys = async(header) => {
 
     // In single-tenant apps, discovery keys endpoint will be specific to your tenant
-    const jwksUri =`https://login.microsoftonline.com/${TENANT_INFO}/discovery/v2.0/keys`
+    const jwksUri =`https://login.microsoftonline.com/${process.env['TENANT_INFO']}/discovery/v2.0/keys`
+    console.log(jwksUri);
 
     const client = jwksClient({
         jwksUri: jwksUri

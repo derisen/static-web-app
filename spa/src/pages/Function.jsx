@@ -4,7 +4,7 @@ import { MsalAuthenticationTemplate, useMsal, useAccount } from "@azure/msal-rea
 import { InteractionRequiredAuthError, InteractionType } from "@azure/msal-browser";
 
 import { loginRequest, protectedResources } from "../authConfig";
-import { callApiWithToken, callOwnApiWithToken } from "../fetch";
+import { callOwnApiWithToken } from "../fetch";
 import { FunctionData } from "../components/DataDisplay";
 
 const FunctionContent = () => {
