@@ -33,7 +33,7 @@ const ProfileContent = () => {
                             scopes: protectedResources.graphMe.scopes,
                         }).then((response) => {
                             callApiWithToken(response.accessToken, protectedResources.graphMe.endpoint)
-                                .then(response => setMailsData(response));
+                                .then(response => setGraphData(response));
                         }).catch(error => console.log(error));
                     }
                 }

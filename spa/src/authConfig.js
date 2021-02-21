@@ -12,7 +12,7 @@ import { LogLevel } from "@azure/msal-browser";
  */
 export const msalConfig = {
     auth: {
-        clientId: "ae9deef3-a957-470e-b60b-c9a45b7dab9a", // This is the ONLY mandatory field that you need to supply.
+        clientId: "83786cb0-06a7-46fd-bf29-95c828c9bbba", // This is the ONLY mandatory field that you need to supply.
         authority: "https://login.microsoftonline.com/cbaf2168-de14-4c72-9d88-f5f05366dbef", // Defaults to "https://login.microsoftonline.com/common"
         redirectUri: "/", // You must register this URI on Azure Portal/App Registration. Defaults to window.location.origin
         postLogoutRedirectUri: "/", // Indicates the page to navigate after logout.
@@ -67,7 +67,7 @@ export const protectedResources = {
         scopes: ["User.Read"],
     },
     functionApi: {
-        endpoint: "http://localhost:7071/api",
-        scopes: ["api://ea8b0e7f-b606-4147-9afb-dba1865392e9/access_as_user"], // e.g. api://xxxxxx/access_as_user
+        endpoint: "/api/GetMessage",
+        scopes: ["api://83786cb0-06a7-46fd-bf29-95c828c9bbba/access_as_user"], // e.g. api://xxxxxx/access_as_user
     },
 }
