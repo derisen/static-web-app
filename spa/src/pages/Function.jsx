@@ -23,6 +23,7 @@ const FunctionContent = () => {
                 scopes: protectedResources.functionApi.scopes,
                 account: account
             }).then((response) => {
+                console.log(response.accessToken);
                 callApiWithToken(response.accessToken, protectedResources.functionApi.endpoint)
                     .then(response => setFunctionData(response));
             }).catch((error) => {
@@ -32,6 +33,7 @@ const FunctionContent = () => {
                         instance.acquireTokenPopup({
                             scopes: protectedResources.functionApi.scopes,
                         }).then((response) => {
+                            console.log(response.accessToken);
                             callApiWithToken(response.accessToken, protectedResources.functionApi.endpoint)
                                 .then(response => setFunctionData(response));
                         }).catch(error => console.log(error));

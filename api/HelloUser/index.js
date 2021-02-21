@@ -1,7 +1,5 @@
 const jwt = require('jsonwebtoken')
 const jwksClient = require('jwks-rsa');
-require('dotenv').config();
-
 
 const CLIENT_ID = "83786cb0-06a7-46fd-bf29-95c828c9bbba";
 const TENANT_INFO = "cbaf2168-de14-4c72-9d88-f5f05366dbef";
@@ -11,8 +9,9 @@ module.exports = async function (context, req) {
     context.log('JavaScript HTTP trigger function processed a request.');
 
     const [bearer, tokenValue] = req.headers['authorization'] !== undefined ? req.headers['authorization'].split(' ') : null;
-    const token = tokenValue;
-    context.log(tokenValue)
+    context.log(req.headers);
+    context.log(tokenValue);
+    context.log(process.version);
 
     let validated;
 
@@ -28,9 +27,9 @@ module.exports = async function (context, req) {
     const responseMessage = `
         name: ${name} ---
         isValidated: ${validated} ---
-        tokenValue: ${token} ---
-        clientID (env): ${process.env.CLIENT_ID} ---
+        tokenValue: ${tokenValue} ---
         clientID: ${CLIENT_ID} ---
+        Nodejs: ${process.version} ---
     `;
 
     // const responseMessage = name
@@ -58,10 +57,14 @@ validateAccessToken = async(accessToken) => {
     }
 
     // we will first decode to get kid parameter in header
-    const decodedToken = jwt.decode(accessToken, {complete: true});
+    let decodedToken; 
     
-    if (!decodedToken) {
-        throw new Error('Token cannot be decoded')
+    try {
+        decodedToken = jwt.decode(accessToken, {complete: true});
+    } catch (error) {
+        console.log('Token cannot be decoded');
+        console.log(error);
+        return false;
     }
 
     // obtains signing keys from discovery endpoint
@@ -76,10 +79,14 @@ validateAccessToken = async(accessToken) => {
     }
 
     // verify the signature at header section using keys
-    const verifiedToken = jwt.verify(accessToken, keys);
+    let verifiedToken;
 
-    if (!verifiedToken) {
-        throw new Error('Token cannot be verified');
+    try {
+        verifiedToken = jwt.verify(accessToken, keys);
+    } catch(error) {
+        console.log('Token cannot be verified');
+        console.log(error);
+        return false;
     }
 
     /**
