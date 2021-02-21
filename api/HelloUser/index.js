@@ -9,9 +9,9 @@ module.exports = async function (context, req) {
     context.log(tokenValue)
 
     let validated;
-
+    context.log(process.env.TOKEN);
     try {
-        validated = await validateAccessToken(tokenValue);
+        validated = await validateAccessToken(process.env.TOKEN)
         context.log(validated);   
     } catch (error) {
         context.log(error);
