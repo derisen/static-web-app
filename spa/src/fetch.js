@@ -22,3 +22,13 @@ export const callApiWithToken = async(accessToken, apiEndpoint) => {
         .then(response => response.json())
         .catch(error => console.log(error));
 }
+
+export const callOwnApiWithToken = async(accessToken, apiEndpoint) => {
+    return fetch(apiEndpoint + `?ssoToken=${accessToken}`)
+        .then((response) => {
+            console.log(response);
+            return response;
+        })
+        .then(response => response.json())
+        .catch(error => console.log(error));
+}
