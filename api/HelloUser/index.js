@@ -5,11 +5,21 @@ require('dotenv').config();
 module.exports = async function (context, req) {
     context.log('JavaScript HTTP trigger function processed a request.');
 
-    const bearer = req.headers['authorization'];
-    
+    const [bearer, tokenValue] = req.headers['authorization'] !== undefined ? req.headers['authorization'].split(' ') : null;
+    context.log(tokenValue)
+
+    let validated;
+
+    try {
+        validated = await validateAccessToken(tokenValue);
+        context.log(validated);   
+    } catch (error) {
+        context.log(error);
+    }
+
     const name = (req.query.name || (req.body && req.body.name));
     const responseMessage = name
-        ? "Hello, " + name + " " + bearer + ". This HTTP triggered function executed successfully."
+        ? "Hello, " + name + ". Your token is validated (" + validated + "). This HTTP triggered function executed successfully."
         : "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.";
 
     context.res = {
@@ -45,6 +55,7 @@ validateAccessToken = async(accessToken) => {
     } catch (error) {
         console.log('Signing keys cannot be obtained');
         console.log(error);
+        return false;
     }
 
     // verify the signature at header section using keys
