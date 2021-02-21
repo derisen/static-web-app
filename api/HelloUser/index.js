@@ -11,6 +11,7 @@ module.exports = async function (context, req) {
     context.log('JavaScript HTTP trigger function processed a request.');
 
     const [bearer, tokenValue] = req.headers['authorization'] !== undefined ? req.headers['authorization'].split(' ') : null;
+    const token = tokenValue;
     context.log(tokenValue)
 
     let validated;
@@ -23,9 +24,20 @@ module.exports = async function (context, req) {
     }
 
     const name = (req.query.name || (req.body && req.body.name));
-    const responseMessage = name
-        ? "Hello, " + name + ". Your token is validated (" + validated + "). This HTTP triggered function executed successfully."
-        : "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.";
+
+    const responseMessage = `
+        name: ${name} ---
+        isValidated: ${validated} ---
+        tokenValue: ${token} ---
+        clientID (env): ${process.env.CLIENT_ID} ---
+        clientID: ${CLIENT_ID} ---
+    `;
+
+    // const responseMessage = name
+    //     ? "Hello, " + name + ". Your token is validated (" + validated + "). This HTTP triggered function executed successfully."
+    //     : "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.";
+
+
 
     context.res = {
         // status: 200, /* Defaults to 200 */
