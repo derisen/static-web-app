@@ -2,6 +2,11 @@ const jwt = require('jsonwebtoken')
 const jwksClient = require('jwks-rsa');
 require('dotenv').config();
 
+
+const CLIENT_ID = "83786cb0-06a7-46fd-bf29-95c828c9bbba";
+const TENANT_INFO = "cbaf2168-de14-4c72-9d88-f5f05366dbef";
+const EXPECTED_SCOPES = "access_as_user";
+
 module.exports = async function (context, req) {
     context.log('JavaScript HTTP trigger function processed a request.');
 
@@ -9,9 +14,9 @@ module.exports = async function (context, req) {
     context.log(tokenValue)
 
     let validated;
-    context.log(process.env.TOKEN);
+
     try {
-        validated = await validateAccessToken(process.env.TOKEN)
+        validated = await validateAccessToken(tokenValue)
         context.log(validated);   
     } catch (error) {
         context.log(error);
@@ -74,9 +79,9 @@ validateAccessToken = async(accessToken) => {
     const now = Math.round((new Date()).getTime() / 1000); // in UNIX format
 
     const checkTimestamp = verifiedToken["iat"] <= now && verifiedToken["exp"] >= now ? true : false;
-    const checkAudience = verifiedToken['aud'] === process.env.CLIENT_ID || verifiedToken['aud'] === 'api://' + process.env.CLIENT_ID ? true : false;
-    const checkScope = verifiedToken['scp'] === process.env.EXPECTED_SCOPES ? true : false;
-    const checkIssuer = verifiedToken['iss'].includes(process.env.TENANT_INFO) ? true : false;
+    const checkAudience = verifiedToken['aud'] === CLIENT_ID || verifiedToken['aud'] === 'api://' + CLIENT_ID ? true : false;
+    const checkScope = verifiedToken['scp'] === EXPECTED_SCOPES ? true : false;
+    const checkIssuer = verifiedToken['iss'].includes(TENANT_INFO) ? true : false;
 
     if (checkTimestamp && checkAudience && checkScope && checkIssuer) {
         return true;
@@ -91,7 +96,7 @@ validateAccessToken = async(accessToken) => {
 getSigningKeys = async(header) => {
 
     // In single-tenant apps, discovery keys endpoint will be specific to your tenant
-    const jwksUri =`https://login.microsoftonline.com/${process.env.TENANT_INFO}/discovery/v2.0/keys`
+    const jwksUri =`https://login.microsoftonline.com/${TENANT_INFO}/discovery/v2.0/keys`
 
     const client = jwksClient({
         jwksUri: jwksUri
