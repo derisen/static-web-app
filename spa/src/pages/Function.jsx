@@ -4,7 +4,7 @@ import { MsalAuthenticationTemplate, useMsal, useAccount } from "@azure/msal-rea
 import { InteractionRequiredAuthError, InteractionType } from "@azure/msal-browser";
 
 import { loginRequest, protectedResources } from "../authConfig";
-import { callOwnApiWithToken } from "../fetch";
+import { callApiWithToken } from "../fetch";
 import { FunctionData } from "../components/DataDisplay";
 
 const FunctionContent = () => {
@@ -20,21 +20,21 @@ const FunctionContent = () => {
     useEffect(() => {
         if (account && inProgress === "none" && !functionData) {
             instance.acquireTokenSilent({
-                scopes: protectedResources.functionApi.scopes,
+                scopes: protectedResources.functionApi2.scopes,
                 account: account
             }).then((response) => {
                 console.log(response.accessToken);
-                callOwnApiWithToken(response.accessToken, protectedResources.functionApi.endpoint)
+                callApiWithToken(response.accessToken, protectedResources.functionApi2.endpoint)
                     .then(response => setFunctionData(response));
             }).catch((error) => {
                 // in case if silent token acquisition fails, fallback to an interactive method
                 if (error instanceof InteractionRequiredAuthError) {
                     if (account && inProgress === "none") {
                         instance.acquireTokenPopup({
-                            scopes: protectedResources.functionApi.scopes,
+                            scopes: protectedResources.functionApi2.scopes,
                         }).then((response) => {
                             console.log(response.accessToken);
-                            callOwnApiWithToken(response.accessToken, protectedResources.functionApi.endpoint)
+                            callApiWithToken(response.accessToken, protectedResources.functionApi2.endpoint)
                                 .then(response => setFunctionData(response));
                         }).catch(error => console.log(error));
                     }

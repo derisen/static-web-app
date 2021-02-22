@@ -3,8 +3,6 @@ const jwksClient = require('jwks-rsa');
 
 module.exports = async function (context, req) {
     context.log('JavaScript HTTP trigger function processed a request.');
-    
-    context.log(process.env['CLIENT_ID']);
 
     const ssoToken = (req.query.ssoToken || (req.body && req.body.ssoToken));
 
