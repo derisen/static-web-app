@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
 const jwksClient = require('jwks-rsa');
 
 module.exports = async function (context, req) {
@@ -111,7 +111,7 @@ validateAccessToken = async(accessToken) => {
         return true;
     }
     return false;
-};
+}
 
 /**
  * Fetches signing keys of an access token 

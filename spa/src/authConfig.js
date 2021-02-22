@@ -69,9 +69,5 @@ export const protectedResources = {
     functionApi: {
         endpoint: "/api/hello",
         scopes: ["api://83786cb0-06a7-46fd-bf29-95c828c9bbba/access_as_user"], // e.g. api://xxxxxx/access_as_user
-    },
-    functionApi2: {
-        endpoint: "/api",
-        scopes: ["api://83786cb0-06a7-46fd-bf29-95c828c9bbba/access_as_user"], // e.g. api://xxxxxx/access_as_user
-    },
+    }
 }
