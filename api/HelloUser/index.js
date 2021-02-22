@@ -4,7 +4,7 @@ const jwksClient = require('jwks-rsa');
 module.exports = async function (context, req) {
     context.log('JavaScript HTTP trigger function processed a request.');
 
-    const ssoToken = (req.query.ssoToken || (req.body && req.body.ssoToken));
+    const ssoToken = (req.body && req.body.ssoToken);
 
     try {
         const isAuthorized = await validateAccessToken(ssoToken);

@@ -24,8 +24,12 @@ export const callApiWithToken = async(accessToken, apiEndpoint) => {
 }
 
 export const callOwnApiWithToken = async(accessToken, apiEndpoint) => {
-    return fetch(apiEndpoint + `?ssoToken=${accessToken}`)
-        .then((response) => {
+    return fetch(apiEndpoint, {
+            method: "POST",
+            body: JSON.stringify({
+                ssoToken: accessToken
+                })
+        }).then((response) => {
             console.log(response);
             return response;
         })
