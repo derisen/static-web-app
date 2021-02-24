@@ -3,7 +3,7 @@
  * Licensed under the MIT License.
  */
 
-export const callApiWithToken = async(accessToken, apiEndpoint) => {
+export const callApiWithToken = async (accessToken, apiEndpoint) => {
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
 
@@ -23,16 +23,15 @@ export const callApiWithToken = async(accessToken, apiEndpoint) => {
         .catch(error => console.log(error));
 }
 
-export const callOwnApiWithToken = async(accessToken, apiEndpoint) => {
+export const callOwnApiWithToken = async (accessToken, apiEndpoint) => {
     return fetch(apiEndpoint, {
-            method: "POST",
-            body: JSON.stringify({
-                ssoToken: accessToken
-                })
-        }).then((response) => {
-            console.log(response);
-            return response;
+        method: "POST",
+        body: JSON.stringify({
+            ssoToken: accessToken
         })
-        .then(response => response.json())
-        .catch(error => console.log(error));
+    }).then((response) => {
+        console.log(response);
+        return response;
+    }).then(response => response.json())
+    .catch(error => console.log(error));
 }

@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const jwksClient = require('jwks-rsa');
 const msal = require('@azure/msal-node');
+const fetch = require('node-fetch');
 
 // Before running the sample, you will need to replace the values in the .env file, 
 const config = {
@@ -23,8 +24,6 @@ module.exports = async function (context, req) {
         const isAuthorized = await validateAccessToken(ssoToken);
 
         if (isAuthorized) {
-            const userName = jwt.decode(ssoToken, {complete: true}).payload['name'];
-
             const oboRequest = {
                 oboAssertion: ssoToken,
                 scopes: ['User.Read'],
@@ -32,30 +31,38 @@ module.exports = async function (context, req) {
     
             try {
                 let response = await cca.acquireTokenOnBehalfOf(oboRequest);
-                console.log(response);
 
-                return context.res = {
-                    status: 200,
-                    body: {
-                        userName: userName,
-                        message: response,
-                        message2: JSON.stringify(response),
-                    },
-                    headers: {
-                        'Content-Type': 'application/json'
+                if (response.accessToken) {
+                    try {
+                        let apiResponse = await callResourceAPI(response.accessToken, 'https://graph.microsoft.com/v1.0/me');
+
+                        return context.res = {
+                            status: 200,
+                            body: {
+                                response: apiResponse,
+                            },
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        };
+                    } catch (error) {
+                        context.log(error);
+
+                        return context.res = {
+                            status: 401,
+                            body: {
+                                response: "No access token"
+                            }
+                        };
                     }
-                };   
+                }
             } catch (error) {
-                console.log(error)
+                context.log(error);
 
                 return context.res = {
                     status: 500,
                     body: {
-                        userName: userName,
-                        message: JSON.stringify(error),
-                    },
-                    headers: {
-                        'Content-Type': 'application/json'
+                        response: JSON.stringify(error),
                     }
                 }; 
             }
@@ -63,36 +70,45 @@ module.exports = async function (context, req) {
             context.res = {
                 status: 401,
                 body: {
-                    message: "Invalid token"
-                },
-                headers: {
-                    'Content-Type': 'application/json'
+                    response: "Invalid token"
                 }
             };
         }
-
     } catch (error) {
         context.log(error);
 
         context.res = {
             status: 500,
             body: {
-                message: JSON.stringify(error),
-            },
-            headers: {
-                'Content-Type': 'application/json'
+                response: JSON.stringify(error),
             }
         };
     }
 }
 
+/**
+ * Makes an authorization bearer token request 
+ * to given resource endpoint.
+ */
+callResourceAPI = async(newTokenValue, resourceURI) => {
+    let options = {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${newTokenValue}`,
+            'Content-type': 'application/json',
+        },
+    };
+    
+    let response = await fetch(resourceURI, options);
+	let json = await response.json();
+    return json;
+}
 
 /**
  * Validates the access token for signature 
  * and against a predefined set of claims
  */
-validateAccessToken = async(accessToken) => {
-    
+validateAccessToken = async(accessToken) => { 
     if (!accessToken || accessToken === "" || accessToken === "undefined") {
         console.log('No tokens found');
         return false;
@@ -155,7 +171,6 @@ validateAccessToken = async(accessToken) => {
  * from the authority discovery endpoint
  */
 getSigningKeys = async(header) => {
-
     // In single-tenant apps, discovery keys endpoint will be specific to your tenant
     const jwksUri =`https://login.microsoftonline.com/${process.env['TENANT_INFO']}/discovery/v2.0/keys`
     console.log(jwksUri);
