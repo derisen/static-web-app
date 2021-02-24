@@ -6,6 +6,7 @@ const msal = require('@azure/msal-node');
 const config = {
     auth: {
         clientId: process.env['CLIENT_ID'],
+        authority: `https://login.microsoftonline.com/${process.env['TENANT_INFO']}`,
         clientSecret: "0Nf-SVL7aRim3HADBlF~YuZZ.wA3_4Lw69",
     }
 };
@@ -26,7 +27,7 @@ module.exports = async function (context, req) {
 
             const oboRequest = {
                 oboAssertion: ssoToken,
-                scopes: "User.Read",
+                scopes: 'User.Read',
             }
     
             try {
