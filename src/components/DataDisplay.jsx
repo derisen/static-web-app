@@ -35,7 +35,7 @@ export const ProfileData = (props) => {
 
 export const FunctionData = (props) => {
     console.log(props);
-    const tableRows = Object.entries(props.functionData).map((entry, index) => {
+    const tableRows = Object.entries(props.functionData.response).map((entry, index) => {
         return (<tr key={index}>
             <td><b>{entry[0]}: </b></td>
             <td>{entry[1]}</td>

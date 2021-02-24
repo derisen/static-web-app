@@ -8,7 +8,7 @@ const config = {
     auth: {
         clientId: process.env['CLIENT_ID'],
         authority: `https://login.microsoftonline.com/${process.env['TENANT_INFO']}`,
-        clientSecret: "0Nf-SVL7aRim3HADBlF~YuZZ.wA3_4Lw69",
+        clientSecret: process.env['CLIENT_SECRET'],
     }
 };
 
