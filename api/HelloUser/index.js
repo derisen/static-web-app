@@ -1,5 +1,17 @@
 const jwt = require('jsonwebtoken');
 const jwksClient = require('jwks-rsa');
+const msal = require('@azure/msal-node');
+
+// Before running the sample, you will need to replace the values in the .env file, 
+const config = {
+    auth: {
+        clientId: process.env['CLIENT_ID'],
+        clientSecret: "0Nf-SVL7aRim3HADBlF~YuZZ.wA3_4Lw69",
+    }
+};
+
+// Create msal application object
+const cca = new msal.ConfidentialClientApplication(config);
 
 module.exports = async function (context, req) {
     context.log('JavaScript HTTP trigger function processed a request.');
@@ -12,16 +24,39 @@ module.exports = async function (context, req) {
         if (isAuthorized) {
             const userName = jwt.decode(ssoToken, {complete: true}).payload['name'];
 
-            context.res = {
-                status: 200,
-                body: {
-                    message: "Authorized",
-                    userName: userName,
-                },
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            };
+            const oboRequest = {
+                oboAssertion: ssoToken,
+                scopes: "User.Read",
+            }
+    
+            try {
+                let response = await cca.acquireTokenOnBehalfOf(oboRequest);
+                console.log(response);
+
+                return context.res = {
+                    status: 200,
+                    body: {
+                        userName: userName,
+                        message: response,
+                    },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                };   
+            } catch (error) {
+                console.log(error)
+
+                return context.res = {
+                    status: 500,
+                    body: {
+                        userName: userName,
+                        message: JSON.stringify(error),
+                    },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }; 
+            }
         } else {
             context.res = {
                 status: 401,
