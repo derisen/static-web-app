@@ -27,7 +27,7 @@ module.exports = async function (context, req) {
 
             const oboRequest = {
                 oboAssertion: ssoToken,
-                scopes: 'User.Read',
+                scopes: ['User.Read'],
             }
     
             try {
@@ -39,6 +39,7 @@ module.exports = async function (context, req) {
                     body: {
                         userName: userName,
                         message: response,
+                        message2: JSON.stringify(response),
                     },
                     headers: {
                         'Content-Type': 'application/json'
